@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ListItem from "./ListItem";
-import { deleteCompletedTodos } from "../store/todoSlice";
+import { deleteCompletedTodos, selectTodoListType } from "../store/todoSlice";
 
 function List() {
   const dispatch = useDispatch();
   const [listType, setListType] = useState(0);
-  let todos = useSelector((state) => state.todos);
-  // if (listType === 0) todos = useSelector((state) => state.todos);
+  const todosList = useSelector((state) => state.todos);
 
-  let completedItem = useSelector((state) => {
-    return state.todos.filter((i) => i.completed === true);
+  // const selectedList = useSelector((state) => state.todos.todos);
+  let completedItems = useSelector((state) => {
+    return state.todos.todos.filter((todo) => todo.completed === true);
   });
 
   const deleteCompletedHandler = () => {
@@ -18,35 +18,63 @@ function List() {
   };
 
   function changeListTypeHandler(e) {
-    if (e.target.innerHTML === "全部") setListType(0);
-    else if (e.target.innerHTML === "待完成") setListType(1);
-    else setListType(2);
+    if (!e) return dispatch(selectTodoListType(0));
+    switch (e.target.innerHTML) {
+      case "全部":
+        dispatch(selectTodoListType(0));
+        setListType(0);
+        break;
+      case "待完成":
+        dispatch(selectTodoListType(1));
+        setListType(1);
+        break;
+      default:
+        dispatch(selectTodoListType(2));
+        setListType(2);
+        break;
+    }
   }
+
+  useEffect(() => {
+    changeListTypeHandler();
+  }, [todosList.todos]);
 
   return (
     <div className="todoList_list">
       <ul className="todoList_tab">
         <li>
-          <a onClick={changeListTypeHandler} href="#" className="active">
+          <a
+            onClick={changeListTypeHandler}
+            href="#"
+            className={listType === 0 ? "active" : ""}
+          >
             全部
           </a>
         </li>
         <li>
-          <a onClick={changeListTypeHandler} href="#">
+          <a
+            onClick={changeListTypeHandler}
+            href="#"
+            className={listType === 1 ? "active" : ""}
+          >
             待完成
           </a>
         </li>
         <li>
-          <a onClick={changeListTypeHandler} href="#">
+          <a
+            onClick={changeListTypeHandler}
+            href="#"
+            className={listType === 2 ? "active" : ""}
+          >
             已完成
           </a>
         </li>
       </ul>
       <div className="todoList_items">
         <ul className="todoList_item">
-          {todos.length === 0
+          {todosList.tempTodos.length === 0
             ? "目前沒有事項"
-            : todos.map((todo) => (
+            : todosList.tempTodos.map((todo) => (
                 <ListItem
                   title={todo.title}
                   completed={todo.completed}
@@ -55,7 +83,7 @@ function List() {
               ))}
         </ul>
         <div className="todoList_statistics">
-          <p>{completedItem.length} 個已完成項目</p>
+          <p>{completedItems.length} 個已完成項目</p>
           <a onClick={deleteCompletedHandler} href="#">
             清除已完成項目
           </a>

@@ -8,6 +8,7 @@ function AddInput() {
 
   const submitHandler = () => {
     dispatch(addTodo({ title: value }));
+    setValue("");
   };
 
   return (
@@ -18,10 +19,8 @@ function AddInput() {
         type="text"
         placeholder="請輸入待辦事項"
       />
-      <a href="#">
-        <i onClick={submitHandler} className="fa fa-plus">
-          +
-        </i>
+      <a onClick={submitHandler} href="#">
+        <i className="fa fa-plus">+</i>
       </a>
     </div>
   );
